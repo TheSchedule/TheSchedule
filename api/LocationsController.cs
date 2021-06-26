@@ -9,6 +9,10 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using api.Models.Entities;
 using System.Collections.Generic;
+using api.Data;
+using System.Linq;
+using Microsoft.Azure.Cosmos.Linq;
+using Microsoft.Azure.Cosmos;
 
 namespace api
 {
@@ -19,34 +23,68 @@ namespace api
 			[HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = "locations")] HttpRequest req,
 			ILogger log)
 		{
-			log.LogInformation("C# HTTP trigger function processed a request.");
+			log.LogInformation("Hit /locations");
+			
+			var db = await Context.GetDbContainer<Location>(log);
+			
+			var iterator = db.GetItemLinqQueryable<Location>()
+				// .OrderBy(l => l.Active)
+				// .ThenBy(l => l.Name)
+				.ToFeedIterator();
+			
+			var locations = new List<Location>();
+			using(iterator)
+			{
+				while(iterator.HasMoreResults)
+				{
+					foreach(var location in await iterator.ReadNextAsync())
+					{
+						log.LogInformation($"\tlocation {location.Id}");
+						locations.Add(location);
+					}
+				}
+			}
+			return new OkObjectResult(locations);
+			/*
+			var pk = new PartitionKey("f13bd39f-a2f0-4196-8eb0-727765737009");
+			var response = await db.ReadItemAsync<Location>("f13bd39f-a2f0-4196-8eb0-727765737009", pk);
+			return new OkObjectResult(response.Resource);
+			*/
+		}
 
-			string name = req.Query["name"];
+		[FunctionName(nameof(GenerateLocations))]
+		public static async Task<IActionResult> GenerateLocations(
+		[HttpTrigger(AuthorizationLevel.Function, "get", Route = "locations/generate")] HttpRequest req,
+		ILogger log)
+		{
+			log.LogInformation("Hit locations/generate");
 
-			string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-			dynamic data = JsonConvert.DeserializeObject(requestBody);
-			name = name ?? data?.name;
-
-			string responseMessage = string.IsNullOrEmpty(name)
-				? "This HTTP triggered function executed successfully. Pass a name in the query string or in the request body for a personalized response."
-				: $"Hello, {name}. This HTTP triggered function executed successfully.";
-			var result = new List<Location>
+			var locations = new List<Location>
 			{
 				new Location
 				{
-					Id = 15,
+					Id = "e18fe9ae-260d-448a-8f38-6a80a0416662",
 					Active = true,
-					Name = string.IsNullOrWhiteSpace(name) ? "Some Name" : name
+					Name = "Some Name"
 				},
 				new Location
 				{
-					Id = 1,
+					Id = "f13bd39f-a2f0-4196-8eb0-727765737009",
 					Active = false,
 					Name = "Old Place",
 					ShortName = "O.P."
 				}
 			};
-			return new OkObjectResult(result);
+
+			var db = await Context.GetDbContainer<Location>(log);
+
+			foreach(var location in locations)
+			{
+				log.LogInformation($"Upserting location {location.Id}");
+				var resp = await db.UpsertItemAsync<Location>(location);
+			}
+			log.LogInformation("Done, returning 200.");
+			return new OkResult();
 		}
 	}
 }

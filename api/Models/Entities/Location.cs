@@ -6,6 +6,9 @@ namespace api.Models.Entities
 {
 	public class Location : Entity
 	{
+		public static new string GetContainerName() => "Locations";
+		public static new string GetIdName() => "LocationId";
+
 		[Required]
 		[MaxLength(512)]
 		public string Name { get; set; }

@@ -2,20 +2,30 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using Newtonsoft.Json;
 
 namespace api.Models.Abstracts
 {
-	public class Entity
+	public abstract class Entity
 	{
-		[Key]
-		public int Id { get; set; }
+		[JsonIgnore]
+		public string ContainerName => GetContainerName();
+		[JsonIgnore]
+		public string IdName => GetIdName();
+		
+		[JsonProperty("id")]
+		public string Id { get; set; }
 
 		public bool Active { get; set; }
+
 
 		public Entity()
 		{
 			Active = true;
 		}
+
+		public static string GetContainerName() => throw new Exception("_GetContainerName() needs override.");
+		public static string GetIdName() => throw new Exception("_GetIdName() needs override.");
 
 		public void Validate()
 		{
