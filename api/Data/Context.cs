@@ -43,7 +43,7 @@ namespace api.Data
 
 			logger.LogInformation($"{cosmosDbUrl}\n{cosmosDbKey}\n{cosmosDbId}\n{containerName}\n{cosmosTrustAllCerts}");
 			
-			var cosmosClient = new CosmosClient(cosmosDbUrl, cosmosDbKey);
+			var cosmosClient = new CosmosClient(cosmosDbUrl, cosmosDbKey, cosmosClientOptions);
 			logger.LogInformation("Created client.");
 			var dbResp = await cosmosClient.CreateDatabaseIfNotExistsAsync(cosmosDbId);
 			logger.LogInformation($"Created database {cosmosDbId}");
