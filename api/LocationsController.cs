@@ -45,11 +45,25 @@ namespace api
 				}
 			}
 			return new OkObjectResult(locations);
-			/*
-			var pk = new PartitionKey("f13bd39f-a2f0-4196-8eb0-727765737009");
-			var response = await db.ReadItemAsync<Location>("f13bd39f-a2f0-4196-8eb0-727765737009", pk);
-			return new OkObjectResult(response.Resource);
-			*/
+		}
+
+		[FunctionName(nameof(GetLocation))]
+		public static async Task<IActionResult> GetLocation([HttpTrigger(AuthorizationLevel.Function, "get", Route = "locations/{locationId}")] HttpRequest request, string locationId, ILogger log)
+		{
+			log.LogInformation($"Hit /locations/{locationId}");
+			try
+			{
+				var db = await Context.GetDbContainer<Location>(log);
+
+				var pk = new PartitionKey(locationId);
+				var response = await db.ReadItemAsync<Location>(locationId, pk);
+
+				return new OkObjectResult(response.Resource);
+			}
+			catch (Exception ex)
+			{
+				return new BadRequestObjectResult(ex);
+			}
 		}
 
 		[FunctionName(nameof(GenerateLocations))]
