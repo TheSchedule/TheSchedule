@@ -79,7 +79,7 @@ namespace tests.Models
 				{
 					throw new TimeoutException($"😫 Container {ContainerName} does not seem to be responding in a timely manner");
 				}
-				await Task.Delay(2000);
+				await Task.Delay(10000);
 			}
 			while(!await isReady());
 

@@ -36,9 +36,11 @@ namespace tests.Models
 				},
 				ExposedPorts = new Dictionary<string, EmptyStruct>
 				{
-					{
-						"8081", new EmptyStruct()
-					}
+					{ "8081", default(EmptyStruct) },
+					{ "10251", default(EmptyStruct) },
+					{ "10252", default(EmptyStruct) },
+					{ "10253", default(EmptyStruct) },
+					{ "10254", default(EmptyStruct) },
 				}
 			};
 
@@ -48,13 +50,14 @@ namespace tests.Models
 		public override HostConfig ToHostConfig() 
 			=> new HostConfig()
 			{
-				//NetworkMode = NetworkName,
+				NetworkMode = NetworkName,
 				Memory = 2000000000,
 				CPUCount = 2,
+				PublishAllPorts = true,
 				PortBindings = new Dictionary<string, IList<PortBinding>>
 					{
 						{
-							"8081/tcp",
+							"8081",
 							new List<PortBinding>
 							{
 								new PortBinding
@@ -63,46 +66,46 @@ namespace tests.Models
 								}
 							}
 						},
-						// {
-						// 	"10251/tcp",
-						// 	new List<PortBinding>
-						// 	{
-						// 		new PortBinding
-						// 		{
-						// 			HostPort = $"10251"
-						// 		}
-						// 	}
-						// },
-						// {
-						// 	"10252/tcp",
-						// 	new List<PortBinding>
-						// 	{
-						// 		new PortBinding
-						// 		{
-						// 			HostPort = $"10252"
-						// 		}
-						// 	}
-						// },
-						// {
-						// 	"10253/tcp",
-						// 	new List<PortBinding>
-						// 	{
-						// 		new PortBinding
-						// 		{
-						// 			HostPort = $"10253"
-						// 		}
-						// 	}
-						// },
-						// {
-						// 	"10254/tcp",
-						// 	new List<PortBinding>
-						// 	{
-						// 		new PortBinding
-						// 		{
-						// 			HostPort = $"10254"
-						// 		}
-						// 	}
-						// },
+						{
+							"10251",
+							new List<PortBinding>
+							{
+								new PortBinding
+								{
+									HostPort = $"10251"
+								}
+							}
+						},
+						{
+							"10252",
+							new List<PortBinding>
+							{
+								new PortBinding
+								{
+									HostPort = $"10252"
+								}
+							}
+						},
+						{
+							"10253",
+							new List<PortBinding>
+							{
+								new PortBinding
+								{
+									HostPort = $"10253"
+								}
+							}
+						},
+						{
+							"10254",
+							new List<PortBinding>
+							{
+								new PortBinding
+								{
+									HostPort = $"10254"
+								}
+							}
+						},
 					},
 			};
 
