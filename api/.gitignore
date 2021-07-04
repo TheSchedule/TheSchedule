@@ -4,6 +4,9 @@
 # Azure Functions localsettings file
 local.settings.json
 
+# Certificate copied over by dockerfile.API
+emulator.crt
+
 # User-specific files
 *.suo
 *.user

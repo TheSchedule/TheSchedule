@@ -1,0 +1,38 @@
+FROM mcr.microsoft.com/dotnet/core/sdk:3.1 AS installer-env
+
+# The build process can be sped up by just copying the csproj before doing the restore.
+COPY api/*.csproj ./api/
+RUN dotnet restore ./api/api.csproj
+
+# then copy the rest and build/publish.
+COPY api ./api/
+RUN mkdir -p /home/site/wwwroot && \
+    dotnet publish -c Release ./api/api.csproj --output /home/site/wwwroot
+
+FROM mcr.microsoft.com/azure-functions/dotnet:3.0-appservice
+ENV AzureWebJobsScriptRoot=/home/site/wwwroot
+ENV AzureFunctionsJobHost__Logging__Console__IsEnabled=true
+ENV AzureWebJobsDisableHomepage=false
+# ENV DatabaseConnectionString=Server=integration-test-db;Database=ItPeople;User\ Id=SA;Password=abcd1234@;
+ENV IncludeStackTraceInError=true
+ENV CosmosTrustAllCerts=true
+ENV CosmosDbUrl="https://the-schedule-cosmos-db:8081"
+# ENV CosmosDbUrl="https://172.18.0.2:8081/"
+ENV CosmosDbKey="C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw=="
+ENV CosmosDbId="TheSchedule"
+# Get the emulator self-signed ssl certificate 
+RUN rm -f /usr/local/share/ca-certificates/emulatorcert.crt
+COPY --from=installer-env ["./api/emulator.crt", "/usr/local/share/ca-certificates/emulatorcert.crt"]
+RUN cat /usr/local/share/ca-certificates/emulatorcert.crt
+RUN chmod 644 /usr/local/share/ca-certificates/emulatorcert.crt && update-ca-certificates --fresh
+# Copy the built API
+COPY --from=installer-env ["/home/site/wwwroot", "/home/site/wwwroot"]
+
+# Figure out how to register the self-served cert from cosmos.
+# RUN docker cp the-schedule-cosmos-db:/tmp/cosmos/appdata/Packages/DataExplorer/emulator.pem /usr/local/share/ca-certificates/emulatorcert.crt 
+# RUN cat /usr/local/share/ca-certificates/emulatorcert.crt
+# RUN update-ca-certificates
+
+
+HEALTHCHECK --interval=10s --timeout=1s --retries=60 \ 
+    CMD curl --fail http://localhost:80/ping || exit 1     

@@ -32,7 +32,7 @@ namespace tests.Models
 				{ 
 					"AZURE_COSMOS_EMULATOR_PARTITION_COUNT=3",
 					"AZURE_COSMOS_EMULATOR_ENABLE_DATA_PERSISTENCE=true",
-					"AZURE_COSMOS_EMULATOR_IP_ADDRESS_OVERRIDE=127.0.0.1"
+					"AZURE_COSMOS_EMULATOR_IP_ADDRESS_OVERRIDE=172.18.0.2" // This is deceptively important. Need to figure out how to reliably find the right IP to provide so the cert covers the right addresses.
 				},
 				ExposedPorts = new Dictionary<string, EmptyStruct>
 				{

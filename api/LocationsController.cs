@@ -18,9 +18,27 @@ namespace api
 {
 	public static class LocationsController
 	{
+		[FunctionName(nameof(Ping))]
+		public static async Task<IActionResult> Ping(
+			[HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "ping")] HttpRequest req,
+			ILogger log
+		)
+		{
+			log.LogInformation("Hit /ping");
+			
+			log.LogInformation("Try to resolve the-schedule-cosmos-db");
+			foreach (var ip in System.Net.Dns.GetHostAddresses("the-schedule-cosmos-db"))
+			{
+				log.LogInformation($"\tFound Entry: {ip.ToString()}");
+			}
+
+			var pong = new { Pong = true };
+			return await Task.Run(() => new OkObjectResult(pong));
+		}
+
 		[FunctionName(nameof(GetLocations))]
 		public static async Task<IActionResult> GetLocations(
-			[HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = "locations")] HttpRequest req,
+			[HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = "locations")] HttpRequest req,
 			ILogger log)
 		{
 			log.LogInformation("Hit /locations");
