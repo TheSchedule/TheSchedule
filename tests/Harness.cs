@@ -50,8 +50,8 @@ namespace tests
 		[OneTimeTearDown]
 		public void OneTimeTeardown()
 		{
-			// CosmosContainer.Stop(_client).Wait(60*1000);
-			// ApiContainer.Stop(_client).Wait(60*1000);
+			CosmosContainer.Stop(_client).Wait(60*1000);
+			ApiContainer.Stop(_client).Wait(60*1000);
 		}
 
 		private async Task<string> GetFirstAvailableIpAddress()
