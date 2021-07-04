@@ -38,7 +38,7 @@ namespace tests
 			CosmosContainer.Start(_client).Wait(60*1000);
 			// Wait for SQL Server container to finish starting
 			CosmosContainer.WaitUntilReady().Wait(60*1000);
-
+			
 			ApiContainer = new ApiContainer(TestContext.Progress, TestContext.Error, CosmosContainer.ContainerName);
 			try { ApiContainer.Remove(_client).Wait(60*1000); } catch {}
 			ApiContainer.BuildImage();
@@ -85,8 +85,7 @@ namespace tests
 			{
 				TestContext.Progress.WriteLine($"⏳ Creating test network '{DockerContainer.NetworkName}'...");
 				_client.Networks
-					.CreateNetworkAsync(new NetworksCreateParameters() { Name = DockerContainer.NetworkName })
-					/*.CreateNetworkAsync(new NetworksCreateParameters() 
+					.CreateNetworkAsync(new NetworksCreateParameters() 
 					{ 
 						Name = DockerContainer.NetworkName,
 						IPAM = new IPAM
@@ -101,7 +100,7 @@ namespace tests
 
 							}
 						}
-					})*/
+					})
 					.Wait();
 			}
 			else
