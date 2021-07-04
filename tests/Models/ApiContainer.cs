@@ -35,7 +35,8 @@ namespace tests.Models
 			{
 				Env = new List<string> 
 				{ 
-					//We set the env strings in Dockerfile.API
+					//We set the other env strings in Dockerfile.API
+					$"CosmosDbUrl=https://{CosmosContainerName}:8081"
 				}
 			};
 		}

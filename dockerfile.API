@@ -16,8 +16,6 @@ ENV AzureWebJobsDisableHomepage=false
 # ENV DatabaseConnectionString=Server=integration-test-db;Database=ItPeople;User\ Id=SA;Password=abcd1234@;
 ENV IncludeStackTraceInError=true
 ENV CosmosTrustAllCerts=true
-ENV CosmosDbUrl="https://the-schedule-cosmos-db:8081"
-# ENV CosmosDbUrl="https://172.18.0.2:8081/"
 ENV CosmosDbKey="C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw=="
 ENV CosmosDbId="TheSchedule"
 # Get the emulator self-signed ssl certificate 
