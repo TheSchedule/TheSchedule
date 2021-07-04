@@ -66,7 +66,7 @@ namespace api
 		}
 
 		[FunctionName(nameof(GetLocation))]
-		public static async Task<IActionResult> GetLocation([HttpTrigger(AuthorizationLevel.Function, "get", Route = "locations/{locationId}")] HttpRequest request, string locationId, ILogger log)
+		public static async Task<IActionResult> GetLocation([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "locations/{locationId}")] HttpRequest request, string locationId, ILogger log)
 		{
 			log.LogInformation($"Hit /locations/{locationId}");
 			try
@@ -86,7 +86,7 @@ namespace api
 
 		[FunctionName(nameof(GenerateLocations))]
 		public static async Task<IActionResult> GenerateLocations(
-		[HttpTrigger(AuthorizationLevel.Function, "get", Route = "locations/generate")] HttpRequest req,
+		[HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "locations/generate")] HttpRequest req,
 		ILogger log)
 		{
 			log.LogInformation("Hit locations/generate");
