@@ -1,7 +1,6 @@
 using System.Threading.Tasks;
 using System;
 using System.IO;
-using System.Data.Common;
 using Microsoft.Azure.Cosmos;
 using System.Net.Http;
 using Docker.DotNet.Models;
@@ -11,19 +10,23 @@ namespace tests.Models
 {
 	public class CosmosContainer : DockerContainer
 	{
-		public CosmosContainer(TextWriter progress, TextWriter error) 
+		public CosmosContainer(TextWriter progress, TextWriter error, string containerIpAddress) 
 			: base(progress, error, "mcr.microsoft.com/cosmosdb/linux/azure-cosmos-emulator", "the-schedule-cosmos-db")
 		{
+			ContainerIpAddress = containerIpAddress;
 		}
 
 		public const string DbUrl = "https://127.0.0.1:8081/";
 		public const string DbKey = "C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw==";
 		public const string DbName = "TheSchedule";
 
+		public string ContainerIpAddress { get; set; }
+
 		public void Pull()
 		{
 			DockerExec($"pull {ImageName}", ".");
 		}
+
 
 		public override Config ToConfig() 
 			=> new Config
@@ -32,7 +35,8 @@ namespace tests.Models
 				{ 
 					"AZURE_COSMOS_EMULATOR_PARTITION_COUNT=3",
 					"AZURE_COSMOS_EMULATOR_ENABLE_DATA_PERSISTENCE=true",
-					"AZURE_COSMOS_EMULATOR_IP_ADDRESS_OVERRIDE=172.18.0.2" // This is deceptively important. Need to figure out how to reliably find the right IP to provide so the cert covers the right addresses.
+					//"AZURE_COSMOS_EMULATOR_IP_ADDRESS_OVERRIDE=172.18.0.2" // This is deceptively important. Need to figure out how to reliably find the right IP to provide so the cert covers the right addresses.
+					$"AZURE_COSMOS_EMULATOR_IP_ADDRESS_OVERRIDE={ContainerIpAddress}"
 				},
 				ExposedPorts = new Dictionary<string, EmptyStruct>
 				{
@@ -72,7 +76,7 @@ namespace tests.Models
 							{
 								new PortBinding
 								{
-									HostPort = $"10251"
+									HostPort = $"10251",
 								}
 							}
 						},
@@ -82,7 +86,7 @@ namespace tests.Models
 							{
 								new PortBinding
 								{
-									HostPort = $"10252"
+									HostPort = $"10252",
 								}
 							}
 						},
@@ -92,7 +96,7 @@ namespace tests.Models
 							{
 								new PortBinding
 								{
-									HostPort = $"10253"
+									HostPort = $"10253",
 								}
 							}
 						},
@@ -102,7 +106,7 @@ namespace tests.Models
 							{
 								new PortBinding
 								{
-									HostPort = $"10254"
+									HostPort = $"10254",
 								}
 							}
 						},
@@ -147,7 +151,7 @@ namespace tests.Models
 			var cosmosClient = new CosmosClient(DbUrl, DbKey, cosmosClientOptions);
 			Progress.WriteLine($"Getting/Creating database {DbName}...");
 			var dbResp = await cosmosClient.CreateDatabaseIfNotExistsAsync(DbName);
-			if(dbResp.StatusCode != System.Net.HttpStatusCode.OK)
+			if(dbResp.StatusCode != System.Net.HttpStatusCode.OK && dbResp.StatusCode != System.Net.HttpStatusCode.Created)
 			{
 				throw new Exception($"Got status code {dbResp.StatusCode}");
 			}
